@@ -17,6 +17,7 @@ from controller import (  # noqa: E402
     PixelState,
     Settings,
     detect_rpi_revision,
+    hardware_brightness,
     parse_command,
 )
 
@@ -134,6 +135,25 @@ class RaspberryPiRevisionTests(unittest.TestCase):
                 )
 
         self.assertEqual(revision, "c03114")
+
+
+class HardwareBrightnessTests(unittest.TestCase):
+    def test_every_nonzero_ha_value_produces_a_nonzero_blinkt_level(self) -> None:
+        for brightness in range(1, 256):
+            with self.subTest(brightness=brightness):
+                blinkt_level = int(31 * hardware_brightness(brightness))
+                self.assertGreaterEqual(blinkt_level, 1)
+                self.assertLessEqual(blinkt_level, 31)
+
+    def test_low_values_share_minimum_hardware_level_instead_of_turning_off(
+        self,
+    ) -> None:
+        for brightness in range(1, 9):
+            with self.subTest(brightness=brightness):
+                self.assertEqual(int(31 * hardware_brightness(brightness)), 1)
+
+    def test_full_brightness_maps_to_full_hardware_level(self) -> None:
+        self.assertEqual(int(31 * hardware_brightness(255)), 31)
 
 
 class ControllerTests(unittest.TestCase):

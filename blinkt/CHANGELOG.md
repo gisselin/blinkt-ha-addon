@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.2 - 2026-08-30
+
+- Keep lights visibly on at Home Assistant brightness values from 1% to 3% by
+  mapping every nonzero 8-bit value to at least Blinkt hardware level 1.
+- Preserve the requested Home Assistant brightness in MQTT state even when
+  several low values necessarily share the same physical 5-bit level.
+
 ## 1.0.1 - 2026-08-30
 
 - Map the Raspberry Pi device tree into the app.

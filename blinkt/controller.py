@@ -17,7 +17,7 @@ from typing import Any, Protocol
 import paho.mqtt.client as mqtt
 
 
-APP_VERSION = "1.0.1"
+APP_VERSION = "1.0.2"
 PIXEL_COUNT = 8
 STATE_VERSION = 1
 LOGGER = logging.getLogger("blinkt_mqtt")
@@ -43,6 +43,14 @@ def normalize_topic(value: str, field: str) -> str:
     if not normalized or any(token in normalized for token in ("#", "+", "\0")):
         raise ValueError(f"{field} is not a valid MQTT topic prefix")
     return normalized
+
+
+def hardware_brightness(brightness: int) -> float:
+    """Map HA's nonzero 8-bit brightness to Blinkt's nonzero 5-bit levels."""
+    if not 1 <= brightness <= 255:
+        raise ValueError("brightness must be between 1 and 255")
+    level = max(1, brightness * 31 // 255)
+    return level / 31.0
 
 
 @dataclass(frozen=True)
@@ -291,7 +299,7 @@ class BlinktHardware:
                     r,
                     g,
                     b,
-                    brightness=pixel.brightness / 255.0,
+                    brightness=hardware_brightness(pixel.brightness),
                 )
             else:
                 self._blinkt.set_pixel(physical_index, 0, 0, 0, brightness=0.0)

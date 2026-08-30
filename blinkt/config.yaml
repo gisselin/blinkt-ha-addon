@@ -1,5 +1,5 @@
 name: "Pimoroni Blinkt MQTT"
-version: "1.0.1"
+version: "1.0.2"
 slug: "pimoroni_blinkt"
 description: >-
   Control a locally attached Pimoroni Blinkt! as one master and eight RGB

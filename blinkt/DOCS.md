@@ -11,7 +11,10 @@ Home Assistant MQTT Discovery for:
 
 All nine lights support on/off, 0–255 Home Assistant brightness, and RGB color.
 The Blinkt hardware has 32 physical brightness steps, so brightness is
-necessarily quantized by Pimoroni's library.
+necessarily quantized by Pimoroni's library. Every nonzero Home Assistant
+brightness maps to at least hardware level 1; consequently, several settings
+at the low end display at the same minimum physical brightness rather than
+turning the pixel off.
 
 ## Requirements
 
