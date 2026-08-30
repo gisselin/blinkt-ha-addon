@@ -1,0 +1,53 @@
+configuration:
+  mqtt_host:
+    name: MQTT host
+    description: Use "auto" for the Supervisor MQTT service, or enter a broker hostname.
+  mqtt_port:
+    name: MQTT port
+    description: Port used only with a manually configured broker.
+  mqtt_username:
+    name: MQTT username
+    description: Username used only with a manually configured broker.
+  mqtt_password:
+    name: MQTT password
+    description: Password used only with a manually configured broker.
+  mqtt_tls:
+    name: Use MQTT TLS
+    description: Enable TLS for a manually configured broker.
+  mqtt_tls_insecure:
+    name: Skip TLS certificate verification
+    description: Unsafe; use only temporarily for diagnosing a private broker.
+  mqtt_ca_file:
+    name: MQTT CA file
+    description: Optional CA filename from the Home Assistant SSL directory.
+  discovery_prefix:
+    name: Discovery prefix
+    description: Home Assistant MQTT Discovery prefix, normally "homeassistant".
+  topic_prefix:
+    name: Topic prefix
+    description: Root topic used for commands, state, and availability.
+  device_id:
+    name: Device ID
+    description: Stable unique identifier; changing it creates a new MQTT device.
+  device_name:
+    name: Device name
+    description: Device name shown in Home Assistant.
+  default_brightness:
+    name: Default brightness
+    description: Brightness from 1 to 255 used before the first saved state exists.
+  restore_state:
+    name: Restore state
+    description: Restore the last pixel state from persistent storage at startup.
+  clear_on_stop:
+    name: Clear on stop
+    description: Turn all pixels off after publishing offline during a clean stop.
+  orientation:
+    name: Pixel orientation
+    description: Reverse logical pixel numbering when the bar is mounted the other way around.
+  gpio_chip:
+    name: GPIO chip
+    description: Auto-detect the header GPIO chip, or force its numeric gpiochip suffix.
+  log_level:
+    name: Log level
+    description: Amount of detail written to the add-on log.
+

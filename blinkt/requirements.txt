@@ -1,0 +1,7 @@
+# Installed with --no-deps because blinkt declares the legacy RPi.GPIO package.
+# rpi-lgpio provides the same RPi.GPIO import API and supports Raspberry Pi 5.
+blinkt==0.1.2
+lgpio==0.2.2.0
+paho-mqtt==2.1.0
+rpi-lgpio==0.6
+

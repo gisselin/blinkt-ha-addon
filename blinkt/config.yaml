@@ -1,0 +1,66 @@
+name: "Pimoroni Blinkt MQTT"
+version: "1.0.0"
+slug: "pimoroni_blinkt"
+description: >-
+  Control a locally attached Pimoroni Blinkt! as one master and eight RGB
+  lights using MQTT Discovery.
+arch:
+  - aarch64
+machine:
+  - raspberrypi3-64
+  - raspberrypi4-64
+  - raspberrypi5-64
+startup: application
+boot: auto
+init: false
+stage: stable
+gpio: true
+devices:
+  - /dev/gpiochip0
+  - /dev/gpiochip1
+  - /dev/gpiochip2
+  - /dev/gpiochip3
+  - /dev/gpiochip4
+  - /dev/gpiochip5
+services:
+  - mqtt:want
+map:
+  - type: ssl
+    read_only: true
+options:
+  mqtt_host: "auto"
+  mqtt_port: 1883
+  mqtt_username: ""
+  mqtt_password: ""
+  mqtt_tls: false
+  mqtt_tls_insecure: false
+  mqtt_ca_file: ""
+  discovery_prefix: "homeassistant"
+  topic_prefix: "blinkt"
+  device_id: "blinkt_gpio"
+  device_name: "Pimoroni Blinkt"
+  default_brightness: 64
+  restore_state: true
+  clear_on_stop: true
+  orientation: "normal"
+  gpio_chip: "auto"
+  log_level: "info"
+schema:
+  mqtt_host: str
+  mqtt_port: port
+  mqtt_username: str
+  mqtt_password: password
+  mqtt_tls: bool
+  mqtt_tls_insecure: bool
+  mqtt_ca_file: str
+  discovery_prefix: "match(^[A-Za-z0-9_-]+$)"
+  topic_prefix: "match(^[A-Za-z0-9_/-]+$)"
+  device_id: "match(^[A-Za-z0-9_-]+$)"
+  device_name: "str(1,64)"
+  default_brightness: "int(1,255)"
+  restore_state: bool
+  clear_on_stop: bool
+  orientation: "list(normal|reversed)"
+  gpio_chip: "match(^(auto|[0-9]+)$)"
+  log_level: "list(debug|info|warning|error)"
+
