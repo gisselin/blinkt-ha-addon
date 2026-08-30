@@ -4,7 +4,18 @@ This repository contains a local Home Assistant OS add-on that controls a
 Pimoroni Blinkt! attached to the same Raspberry Pi. It creates one master RGB
 light and eight pixel RGB lights through MQTT Discovery.
 
-## Quick installation
+## Install in Home Assistant
+
+[![Open your Home Assistant instance and add this app repository.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fgisselin%2Fblinkt-ha-addon)
+
+Select the button, choose your Home Assistant instance, and confirm the
+repository. Then open the app/add-on store and install **Pimoroni Blinkt MQTT**.
+
+This is a Home Assistant OS app/add-on rather than a HACS integration, so the
+button adds the repository directly to Home Assistant's app store; HACS is not
+required.
+
+## Manual local installation
 
 1. Extract this archive on a computer.
 2. Copy the `blinkt` directory into `/addons/blinkt` on Home Assistant OS. The
@@ -48,4 +59,3 @@ blinkt-ha-addon/
 
 The add-on code is MIT licensed. Pimoroni Blinkt!, rpi-lgpio, lgpio,
 paho-mqtt, and Home Assistant base images retain their own licenses.
-
