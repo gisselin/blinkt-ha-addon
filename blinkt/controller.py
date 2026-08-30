@@ -17,10 +17,11 @@ from typing import Any, Protocol
 import paho.mqtt.client as mqtt
 
 
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.0.1"
 PIXEL_COUNT = 8
 STATE_VERSION = 1
 LOGGER = logging.getLogger("blinkt_mqtt")
+RPI_REVISION_FALLBACK = "c03114"
 
 
 def env_bool(name: str, default: bool = False) -> bool:
@@ -165,16 +166,71 @@ class Hardware(Protocol):
         """Turn every physical pixel off."""
 
 
+def detect_rpi_revision(
+    device_tree_roots: tuple[Path, ...] | None = None,
+    cpuinfo_path: Path = Path("/proc/cpuinfo"),
+) -> str:
+    """Find the Raspberry Pi revision and format it for rpi-lgpio."""
+    configured = os.getenv("RPI_LGPIO_REVISION", "").strip().lower()
+    if configured:
+        try:
+            int(configured, 16)
+        except ValueError as exc:
+            raise RuntimeError("RPI_LGPIO_REVISION is not hexadecimal") from exc
+        return configured.removeprefix("0x")
+
+    roots = device_tree_roots or (
+        Path("/device-tree"),
+        Path("/proc/device-tree"),
+        Path("/sys/firmware/devicetree/base"),
+    )
+    for root in roots:
+        revision_path = root / "system/linux,revision"
+        try:
+            raw_revision = revision_path.read_bytes()
+        except OSError:
+            continue
+        if len(raw_revision) >= 4:
+            revision = int.from_bytes(raw_revision[-4:], byteorder="big")
+            if revision:
+                return f"{revision:06x}"
+
+    try:
+        for line in cpuinfo_path.read_text(encoding="utf-8").splitlines():
+            key, separator, value = line.partition(":")
+            if separator and key.strip().lower() == "revision":
+                revision = value.strip().lower().removeprefix("0x")
+                int(revision, 16)
+                return revision
+    except (OSError, ValueError):
+        pass
+
+    # The add-on is machine-restricted to 64-bit Raspberry Pi 3/4/5 systems.
+    # Blinkt uses BCM numbering and RPI_LGPIO_CHIP is selected separately, so a
+    # modern 40-pin Pi revision is a safe compatibility fallback if an older
+    # Supervisor does not provide the requested device-tree mount.
+    LOGGER.warning(
+        "Could not read the Raspberry Pi revision from the mapped device tree; "
+        "using compatibility revision %s",
+        RPI_REVISION_FALLBACK,
+    )
+    return RPI_REVISION_FALLBACK
+
+
 class BlinktHardware:
     """Pimoroni Blinkt hardware adapter using the rpi-lgpio RPi.GPIO shim."""
 
     def __init__(self, orientation: str, requested_gpio_chip: str) -> None:
         chip = self._select_gpio_chip(requested_gpio_chip)
         os.environ["RPI_LGPIO_CHIP"] = str(chip)
+        revision = detect_rpi_revision()
+        os.environ["RPI_LGPIO_REVISION"] = revision
         LOGGER.info("Using /dev/gpiochip%s for BCM GPIO 23/24", chip)
+        LOGGER.info("Using Raspberry Pi revision %s for rpi-lgpio", revision)
 
         try:
-            import blinkt  # Imported only after RPI_LGPIO_CHIP is set.
+            # Both rpi-lgpio environment values must be set before this import.
+            import blinkt
         except Exception as exc:
             raise RuntimeError(
                 f"Unable to import the Pimoroni Blinkt library: {exc}"

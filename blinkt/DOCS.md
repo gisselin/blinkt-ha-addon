@@ -134,10 +134,15 @@ package unchanged for the Blinkt protocol. Its `RPi.GPIO` import is supplied by
 the `rpi-lgpio` compatibility package, which supports Raspberry Pi 5 and uses
 Linux GPIO character devices.
 
-The app requests `gpio: true` and maps the possible Raspberry Pi
+The app requests `gpio: true` and `devicetree: true`, and maps the possible Raspberry Pi
 `/dev/gpiochip0` through `/dev/gpiochip5` device nodes. It includes a custom
 AppArmor profile and remains in Home Assistant protection mode. It does **not**
 request `/dev/mem`, `SYS_RAWIO`, host networking, or full hardware access.
+
+The mapped device tree is used to pass the real board revision to `rpi-lgpio`
+before Pimoroni's library is imported. If an older Supervisor does not expose
+the revision property, the app uses a logged compatibility revision; BCM pin
+numbering and the GPIO-chip selection remain explicit and unchanged.
 
 GPIO 23 and 24 must not be claimed by another process, app, overlay, or HAT.
 The GPIO character-device API intentionally gives one process exclusive
@@ -187,4 +192,3 @@ the same `device_id` for another physical device.
 ### Pixel numbering is backwards
 
 Set `orientation: reversed` and restart the app.
-

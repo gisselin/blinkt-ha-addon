@@ -6,12 +6,19 @@ import tempfile
 import unittest
 from copy import deepcopy
 from pathlib import Path
+from unittest.mock import patch
 
 
 ADDON_DIR = Path(__file__).resolve().parents[1] / "blinkt"
 sys.path.insert(0, str(ADDON_DIR))
 
-from controller import BlinktController, PixelState, Settings, parse_command  # noqa: E402
+from controller import (  # noqa: E402
+    BlinktController,
+    PixelState,
+    Settings,
+    detect_rpi_revision,
+    parse_command,
+)
 
 
 class FakeHardware:
@@ -85,6 +92,48 @@ class CommandParsingTests(unittest.TestCase):
         for payload in (b"{}", b'{"color":{"r":1,"g":2}}', b"not-json"):
             with self.subTest(payload=payload), self.assertRaises(ValueError):
                 parse_command(payload)
+
+
+class RaspberryPiRevisionTests(unittest.TestCase):
+    def test_reads_big_endian_revision_from_mapped_device_tree(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            revision_path = root / "system/linux,revision"
+            revision_path.parent.mkdir(parents=True)
+            revision_path.write_bytes(bytes.fromhex("00c04170"))
+
+            with patch.dict("os.environ", {}, clear=True):
+                revision = detect_rpi_revision(
+                    device_tree_roots=(root,),
+                    cpuinfo_path=root / "missing-cpuinfo",
+                )
+
+        self.assertEqual(revision, "c04170")
+
+    def test_reads_revision_from_cpuinfo_when_device_tree_is_unavailable(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            cpuinfo_path = root / "cpuinfo"
+            cpuinfo_path.write_text("Model: Raspberry Pi\nRevision : d04170\n")
+
+            with patch.dict("os.environ", {}, clear=True):
+                revision = detect_rpi_revision(
+                    device_tree_roots=(root / "missing",),
+                    cpuinfo_path=cpuinfo_path,
+                )
+
+        self.assertEqual(revision, "d04170")
+
+    def test_uses_compatibility_revision_when_metadata_is_unavailable(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            with patch.dict("os.environ", {}, clear=True):
+                revision = detect_rpi_revision(
+                    device_tree_roots=(root / "missing",),
+                    cpuinfo_path=root / "missing-cpuinfo",
+                )
+
+        self.assertEqual(revision, "c03114")
 
 
 class ControllerTests(unittest.TestCase):

@@ -1,5 +1,5 @@
 name: "Pimoroni Blinkt MQTT"
-version: "1.0.0"
+version: "1.0.1"
 slug: "pimoroni_blinkt"
 description: >-
   Control a locally attached Pimoroni Blinkt! as one master and eight RGB
@@ -15,6 +15,7 @@ boot: auto
 init: false
 stage: stable
 gpio: true
+devicetree: true
 devices:
   - /dev/gpiochip0
   - /dev/gpiochip1
@@ -63,4 +64,3 @@ schema:
   orientation: "list(normal|reversed)"
   gpio_chip: "match(^(auto|[0-9]+)$)"
   log_level: "list(debug|info|warning|error)"
-

@@ -24,5 +24,5 @@ profile pimoroni_blinkt flags=(attach_disconnected,mediate_deleted) {
   /dev/gpiochip[0-9]* rw,
   /sys/class/gpio/{,**} r,
   /sys/bus/gpio/devices/{,**} r,
+  /device-tree/{,**} r,
 }
-

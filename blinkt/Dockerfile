@@ -1,6 +1,6 @@
 FROM ghcr.io/home-assistant/base:3.22
 
-ARG BUILD_VERSION=1.0.0
+ARG BUILD_VERSION=1.0.1
 ARG BUILD_ARCH=aarch64
 
 LABEL \
@@ -41,4 +41,3 @@ COPY run.sh /run.sh
 RUN chmod 0755 /run.sh
 
 CMD ["/run.sh"]
-
